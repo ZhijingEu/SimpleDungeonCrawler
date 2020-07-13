@@ -1,13 +1,19 @@
+#Made by Z (zhijingeu@yahoo.com)
+#This is a very simple dungeon explorer game with mostly text graphics built in Py.Processing
+#Last Edited 14 Jul 2020
+
 import random
+#initialising a few variables to be used later
+rand=0
+#TO DO in future updates - create a Player class with "health" attribute instead of using health as a global variable
+health = 3
 
-health = 15
+#Creates a 8 x 8 array for "drawing" the board. Values stored on 'grid' array are meant to turn cells visible/invisible
 
-#Creates a 8 x 8 game grid for "drawing" the board
-
-grid = [ [1]*8  for n in range(8)] # list comprehension
+grid = [ [1]*8  for n in range(8)] 
 w = 70 # sets width of each cell
 
-#Creates a 8 x 8 grid for storing the "values" in each cell 
+#Creates a 8 x 8 array for storing the "values" in each cell. Values stored on 'cell' array are meant to affect player health
 cell = [ [""]*8  for n in range(8)]
 
 #initialises the variables  
@@ -16,11 +22,11 @@ monsters= []
 traps= []
 blanks = []
     
-#loops to create no of hearts/values
-for i in range(0,6): #SET NO OF HEARTS
+#Creates the values to populate the cell array later
+for i in range(0,8): #SET NO OF HEARTS
     hearts.append(" <3 ")
     
-for i in range(0,25): #SET NO OF MONSTERS
+for i in range(0,24): #SET NO OF MONSTERS
     monsters.append(" ~www~")
 
 for i in range(0,3): #SET NO OF TRAP
@@ -31,13 +37,13 @@ NoOfBlanks= 62 - len(hearts) - len(monsters) - len(traps)
 for i in range(0,NoOfBlanks):
     blanks.append("     ")
     
-#Merges the values and randomises the order
+#Merges the values and randomises the order and stores it into a list
 cellVals=hearts+monsters+blanks+traps
 cellVals.append("START")
 cellVals.append(" EXIT")
 random.shuffle(cellVals)
 
-#This loop helps to assign values to be written onto the cells from earlier list
+#This loop helps to assign values from the cellVals list into the cell array
 counter=0
 for i in range(0,8):
      
@@ -53,7 +59,7 @@ for i in range(0,8):
         println(cell[i][j])
         counter=counter+1   
 
-#Ensures the start cell is vieweable
+#Ensures the starting cell is visible when game begins
 grid[StartY][StartX]= -1
 
 #Draws the board and instructions
@@ -99,106 +105,76 @@ def draw():
                 
                                                         
 def mousePressed():
-    global health
+    global health # not best programming practice I know but I had to reference these 2 variables (one for health level and another rand var for flavour text) which were declared outside this function
+    global rand 
+    rand=round(random.random()*10,0) # normalised random variable so it's between 0 to 10
     background(255)
-    println(mouseY/w)
-    println(mouseX/w)
-    println("XXXXX")
-    if mouseY/w==7 and mouseX/w<>7:
+    
+    # tests if surrounding cells have been selected or not (i.e so that tge player can only select cells adjacent to an already "uncovered" cell)
+    # handles the edge case where otherwise it would be out of index
+    if mouseY/w==7 and mouseX/w<>7:  
         if grid[mouseY/w-1][mouseX/w]==-1 or grid[mouseY/w][mouseX/w+1] or grid[mouseY/w][mouseX/w-1]:
             grid[mouseY/w][mouseX/w] = -1 * grid[mouseY/w][mouseX/w]
-            distanceToExitY=(ExitY-mouseY/w)
-            distanceToExitX=(ExitX-mouseX/w)
-            distanceToExit=(distanceToExitY**2+distanceToExitX**2)**0.5
-            text(round(distanceToExit,1),700,70)
-            for i in range(0,8):
-                for j in range(0,8):
-                    if i <> mouseY/w and j <> mouseX/w:
-                        grid[i][j]=1
-            if cell[mouseX/w][mouseY/w]==" ~www~":
-                text("OUCH! That hurt",600,200)
-                health=health-1
-            if cell[mouseX/w][mouseY/w]=="TRAP ":
-                text("AARGH! That REALLY hurt",600,200)
-                health=health-2
-            if cell[mouseX/w][mouseY/w]==" <3 ":
-                text("Aaaahhhh...Nice!",600,200)
-                health=health+1
-            if cell[mouseX/w][mouseY/w]==" EXIT":
-                text("YOU ESCAPED!!!",600,200)        
-        else:
-            text("Error Select Only Cell That Is",600,200)
-            text("Up/Down/Left/Right",600,220)
-            text("Relative To Current Position",600,240)
-        if health <= 0:
-            background(0)
-            text("GAME OVER!",600,200)
-            grid[ExitY][ExitX]=-1
-        if health > 0: 
-            text(health,660,140)
     
-    if mouseY/w<>7 and mouseX/w==7:
+    if mouseY/w<>7 and mouseX/w==7: 
         if grid[mouseY/w-1][mouseX/w]==-1 or grid[mouseY/w+1][mouseX/w] or grid[mouseY/w][mouseX/w-1]:
-            grid[mouseY/w][mouseX/w] = -1 * grid[mouseY/w][mouseX/w]
-            distanceToExitY=(ExitY-mouseY/w)
-            distanceToExitX=(ExitX-mouseX/w)
-            distanceToExit=(distanceToExitY**2+distanceToExitX**2)**0.5
-            text(round(distanceToExit,1),700,70)
-            for i in range(0,8):
-                for j in range(0,8):
-                    if i <> mouseY/w and j <> mouseX/w:
-                        grid[i][j]=1
-            if cell[mouseX/w][mouseY/w]==" ~www~":
-                text("OUCH!",600,200)
-                health=health-1
-            if cell[mouseX/w][mouseY/w]=="TRAP ":
-                text("AARGH!",600,200)
-                health=health-2
-            if cell[mouseX/w][mouseY/w]==" <3 ":
-                text("YUMMM",600,200)
-                health=health+1
-            if cell[mouseX/w][mouseY/w]==" EXIT":
-                text("YOU ESCAPED!!!",600,200)        
-        else:
-            text("Error Select Only Cell That Is",600,200)
-            text("Up/Down/Left/Right",600,240)
-            text("To Current Position",600,280)
-        if health <= 0:
-            background(0)
-            text("GAME OVER!",600,200)
-            grid[ExitY][ExitX]=-1
-        if health > 0: 
-            text(health,660,140)                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+            grid[mouseY/w][mouseX/w] = -1 * grid[mouseY/w][mouseX/w]                                                                                             
+    #handles all other regular cases                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     if mouseY/w<>7 and mouseX/w<>7:
         if  grid[mouseY/w+1][mouseX/w] == -1 or grid[mouseY/w][mouseX/w+1] == -1 or grid[mouseY/w][mouseX/w-1] == -1 or grid[mouseY/w-1][mouseX/w] == -1:
             grid[mouseY/w][mouseX/w] = -1 * grid[mouseY/w][mouseX/w]
-            distanceToExitY=(ExitY-mouseY/w)
-            distanceToExitX=(ExitX-mouseX/w)
-            distanceToExit=(distanceToExitY**2+distanceToExitX**2)**0.5
-            text(round(distanceToExit,1),700,70)
-            for i in range(0,8):
-                for j in range(0,8):
-                    if i <> mouseY/w and j <> mouseX/w:
-                        grid[i][j]=1
-            if cell[mouseX/w][mouseY/w]==" ~www~":
+    
+    if grid[mouseY/w][mouseX/w] == -1:
+        distanceToExitY=(ExitY-mouseY/w)
+        distanceToExitX=(ExitX-mouseX/w)
+        distanceToExit=(distanceToExitY**2+distanceToExitX**2)**0.5
+        text(distanceToExit,700,70)
+        for i in range(0,8):
+            for j in range(0,8):
+                if i <> mouseY/w and j <> mouseX/w:
+                    grid[i][j]=1
+        if cell[mouseX/w][mouseY/w]==" ~www~":
+            if rand<=5:
                 text("OUCH!",600,200)
-                health=health-1
-            if cell[mouseX/w][mouseY/w]=="TRAP ":
-                text("AARGH!",600,200)
-                health=health-2
-            if cell[mouseX/w][mouseY/w]==" <3 ":
-                text("YUMMM",600,200)
-                health=health+1
-            if cell[mouseX/w][mouseY/w]==" EXIT":
-                text("YOU ESCAPED!!!",600,200)
-        else:
-            text("Error Select Only Cell That Is",600,200)
-            text("Up/Down/Left/Right",600,240)
-            text("To Current Position",600,280)
-        if health <= 0:
+            if rand>5:
+                text("x_x",600,200)
+            health=health-1
+        if cell[mouseX/w][mouseY/w]=="TRAP ":
+            if rand<=5:
+                text("AAARGH!",600,200)
+            if rand>5:
+                text(":'(",600,200)
+            health=health-2
+        if cell[mouseX/w][mouseY/w]==" <3 ":
+            if rand<=5:
+                text("UmU",600,200)
+            if rand>5:
+                text(":)",600,200)
+            health=health+1
+        if cell[mouseX/w][mouseY/w]=="     ":
+            if rand<=2:
+                text("!_!",600,200)
+            if rand>2 and rand<=4:
+                text("^-^",600,200)
+            if rand>4 and rand<=6:
+                text("*Phew*",600,200)
+            if rand>6 and rand<=8:
+                text("~_~",600,200)
+            if rand>8:
+                text("Doobedoobedoo",600,200)
+        if cell[mouseX/w][mouseY/w]==" EXIT":
             background(0)
-            text("GAME OVER!",600,200)
-            grid[ExitY][ExitX]=-1
-        if health > 0: 
-            text(health,660,140)
+            text("YOU ESCAPED!!!",600,200)
+    
+    if grid[mouseY/w][mouseX/w] <> -1:
+        text("Error Select Only Cell That Is",600,180)
+        text("Up/Down/Left/Right",600,200)
+        text("To Current Position",600,220)
+    
+    if health <= 0:
+        background(0)
+        text("GAME OVER!",600,200)
+        grid[ExitY][ExitX]=-1
+    
+    if health > 0: 
+        text(health,660,140)
